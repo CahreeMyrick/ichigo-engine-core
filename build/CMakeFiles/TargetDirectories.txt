@@ -1,0 +1,4 @@
+/Users/cahree/ichigo-engine-core/build/CMakeFiles/chess.dir
+/Users/cahree/ichigo-engine-core/build/CMakeFiles/ichigo_main.dir
+/Users/cahree/ichigo-engine-core/build/CMakeFiles/edit_cache.dir
+/Users/cahree/ichigo-engine-core/build/CMakeFiles/rebuild_cache.dir

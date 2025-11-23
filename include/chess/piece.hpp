@@ -33,6 +33,39 @@ public:
 	std::string display() override;
 };
 
+class Knight : public Piece {
+public:
+
+	// constructor declaration
+	Knight(Color col);
+
+	// display method
+	std::string display() override;
+
+};
+
+class Bishop : public Piece {
+public: 
+	Bishop(Color); 
+	std::string display() override; 
+};
+
+class Rook   : public Piece { 
+public: explicit Rook(Color);   
+std::string display() override; 
+};
+
+class Queen  : public Piece { 
+public: 
+	Queen(Color);  
+	std::string display() override;
+};
+class King   : public Piece { 
+public:
+	King(Color);   
+	std::string display() override; 
+};
+
 class Empty : public Piece {
 public: 
 	// constructor declaration
