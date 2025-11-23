@@ -1,15 +1,15 @@
 #include "chess/piece.hpp"
+#include "chess/board.hpp"
 
-int main() {
+int main()
+{
+	// board test: create and display board
+	Board b;
+	b.create_board();
+	b.display_board();
 
-	// create piece obj for tetsing
-	Pawn p(Color::White);
 
-	if (p.color == Color::White) {
-		std::cout << "true\n";
-	}
 
-	std::cout << p.display() << std::endl;
 
 	return 0;
 }
