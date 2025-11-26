@@ -1,15 +1,11 @@
 #include "chess/piece.hpp"
 #include "chess/board.hpp"
+#include "chess/game.hpp"
 
 int main()
 {
-	// board test: create and display board
-	Board b;
-	b.create_board();
-	b.display_board();
-
-
-
-
+	
+	Game g;
+	g.start_game();
 	return 0;
 }
