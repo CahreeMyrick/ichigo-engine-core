@@ -1,5 +1,6 @@
 #include "chess/game.hpp"
 #include <memory>
+#include <iostream>
 
 Game::Game() {b.create_board();}
 
@@ -8,8 +9,7 @@ void Game::game_loop() {
   while (user_input != "quit") {
     b.display_board();
     std::cout << "Enter move: " << std::endl;
-    std::cin >> user_input;
-
+    std::getline(std::cin, user_input);
     move(user_input[0]-'0', user_input[1]-'0', user_input[3]-'0', user_input[4]-'0');
   }
 }
