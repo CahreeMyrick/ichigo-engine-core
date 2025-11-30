@@ -2,6 +2,8 @@
 #include "chess/board.hpp"
 #include "chess/game.hpp"
 
+using namespace chess;
+
 int main()
 {
 	

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 
+namespace chess {
 
 Game::Game() {b.create_board();}
 
@@ -14,64 +15,50 @@ void Game::game_loop() {
     std::cout << "Enter move: " << std::endl;
     std::getline(std::cin, user_input);
 		if (user_input == "quit") {break;}
-    move(user_input[0]-'0', user_input[1]-'0', user_input[3]-'0', user_input[4]-'0');
+    std::string error_msg = "";
+    move(user_input, error_msg);
+    if (!error_msg.empty()) {
+      std::cout << "Error: " << error_msg << std::endl;
+    }
   }
 }
 
-bool Game::in_bounds(int r0, int c0, int r1, int c1) {
-	return true;
+
+void Game::move(const std::string &input, std::string &error_msg  ) {
+  std::istringstream iss(input);
+  int r0, c0, r1, c1;
+
+  if (!(iss >> r0 >> c0 >> r1 >> c1)) {
+    error_msg = "Invalid input format. Please enter moves as: r0 c0 r1 c1";
+    return;
+  }
+
+  else {
+      std::unique_ptr<Piece> &src_piece = b.board[r0][c0];
+  }
+
+  if (!b.in_bounds(r1, c1)) {
+    error_msg = "Move out of bounds.";
+    return;
+  }
+
+  if (!b.board[r0][c0]) {
+    error_msg = "No piece at source position.";
+    return;
+  }
+
+  if (!b.board[r0][c0]->can_move(b, r0, c0, r1, c1)) {
+    error_msg = "Piece cannot move to the specified destination.";
+    return;
+  }
+
+  b.board[r1][c1] = std::move(b.board[r0][c0]);
+  b.board[r0][c0] = std::make_unique<Empty>(Color::None);
 }
-
-bool Game::is_enemy() {
-	return true;
-}
-
-bool Game::is_friend() {
-	return false;
-}
-
-bool Game::is_empty() {
-	return true;
-}
-
-
-void Game::move(int r0, int c0, int r1, int c1) {
 	
-	// pawn instance
-	/*
-	 If the source piece is a pawn, then we must:
-	 	• check if the pawn can move to the destinatin square
-		• move the pawn from the source square to the destination square
-		(afterward, the source square should be of type Piece::Empty, 
-		and the destination square should be of type Piece::Pawn)
-	 */
-	// Pawn* p = dynamic_cast<Pawn*>(b.board[r0][c0].get())
-	if (Pawn* p = dynamic_cast<Pawn*>(b.board[r0][c0].get())) {
-
-		if (in_bounds(r0, c0, r1, c1) == false) {std::cout << "Out of bounds. Choose a new move.";}
-
-		if (is_friend()) {std::cout << "Invalid move. Choose a new move.";}
-		
-		else {
-
-			// move the piece
-			//b.board[r1][c1] = std::make_unique<Pawn>(Color::White);
-
-			// make src square type Piece::empty;
-			b.board[r1][c1].reset();
-			b.board[r1][c1] = std::move(b.board[r0][c0]);
-			b.board[r0][c0].reset();
-			b.board[r0][c0] = std::make_unique<Empty>(Color::None);
-
-		}
-
-	}
-
-	else {std::cout << "Not Implemented.";}
-}
 
 void Game::start_game() {
   game_loop();
-
 }
 
+} // namespace chess

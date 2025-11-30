@@ -2,7 +2,9 @@
 #include <memory>
 #include <iostream>
 
-void Board::display_board() {
+namespace chess {
+
+void Board::display_board() const {
     auto colLetters = []() {
         std::cout << "    ";
         for (int c = 0; c < COLS; ++c) std::cout << "  " << char('a' + c) << " ";
@@ -95,4 +97,41 @@ void Board::create_board(){
 	set_pieces(0, Color::White);
 	set_pieces(7, Color::Black);
 }
+
+
+bool Board::in_bounds(const int &r1, const int &c1) const {
+  if (r1 < 0 || r1 >= 8 || c1 < 0 || c1 >= 8) {
+    return false;
+  }
+  return true;
+}
+
+bool Board::is_enemy(const Color &color, const int &r1, const int &c1)const {
+	return true;
+}
+
+bool Board::is_friend(const Color &color, const int &r1, const int &c1 ) const{
+	return false;
+}
+
+bool Board::is_empty(const int &r1, const int &c1) const{
+	return true;
+}
+
+
+bool Board::path_clear(int r0, int c0, int r1, int c1) const {
+    int dr = (r1 > r0) - (r1 < r0);  // -1,0,1
+    int dc = (c1 > c0) - (c1 < c0);  // -1,0,1
+    if (dr == 0 && dc == 0) return true;
+    int r = r0 + dr, c = c0 + dc;
+    while (r != r1 || c != c1) {
+        if (!in_bounds(r, c) || !is_empty(r, c)) return false;
+        r += dr; c += dc;
+    }
+    return true;
+}
+
+} // namespace chess
+
+
 
