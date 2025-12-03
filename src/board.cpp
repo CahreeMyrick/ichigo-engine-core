@@ -132,6 +132,3 @@ bool Board::path_clear(int r0, int c0, int r1, int c1) const {
 }
 
 } // namespace chess
-
-
-
