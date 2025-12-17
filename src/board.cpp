@@ -64,7 +64,7 @@ void Board::set_pieces(int row, Color color){
 		board[pawn_row][j] = std::make_unique<Pawn>(color);
 	}
 
-	// set kngihts
+	// set knights
 	board[row][1] = std::make_unique<Knight>(color);
 	board[row][6] = std::make_unique<Knight>(color);
 
@@ -107,15 +107,15 @@ bool Board::in_bounds(const int &r1, const int &c1) const {
 }
 
 bool Board::is_enemy(const Color &color, const int &r1, const int &c1)const {
-	return true;
+	 
 }
 
 bool Board::is_friend(const Color &color, const int &r1, const int &c1 ) const{
-	return false;
+	return  board[r1][c1]->color == color;
 }
 
 bool Board::is_empty(const int &r1, const int &c1) const{
-	return true;
+	return board[r1][c1]->color==Color::None;
 }
 
 
@@ -130,5 +130,55 @@ bool Board::path_clear(int r0, int c0, int r1, int c1) const {
     }
     return true;
 }
+
+bool Board::attacks_square(Color attackerColor, int r, int c) const {
+    auto pawn_dir = [](Color col) {return (col==Color::White) ? +1 : -1;};
+
+    for (int rr = 0; rr < ROWS; ++rr) {
+        for (int cc = 0; cc < COLS; +cc) {
+            const Piece * p = board[rr][cc].get();
+            if (!p || p->color != attackerColor) continue;
+
+            // Knight
+            if (dynamic_cast<const Knight*>(p)) {
+                int dr = std::abs(r-rr), dc = std::abs(c-cc);
+                if ((dr==2 && dc==1) || (dr==1 && dc==2)) return true;
+                continue;
+            }
+
+            // King
+            if (dynamic_cast<const King*>(p)) {
+                int dr = std::abs(r-rr), dc = std::abs(c-cc);
+                if (std::max(dr,dc)==1) return true;
+                continue;
+            }
+            // Pawn (captures only diagonally)
+            if (dynamic_cast<const Pawn*>(p)) {
+                int dir = pawn_dir(p->color);
+                if (r == rr + dir && std::abs(c - cc) == 1) return true;
+                continue;
+            }
+            // Bishop / Rook / Queen sliding
+            auto ray = [&](int drr, int dcc)->bool {
+                int tr = rr + drr, tc = cc + dcc;
+                while (in_bounds(tr,tc)) {
+                    if (tr == r && tc == c) return true;
+                    if (!is_empty(tr,tc)) break;
+                    tr += drr; tc += dcc;
+                }
+                return false;
+            };
+            if (dynamic_cast<const Bishop*>(p) || dynamic_cast<const Queen*>(p)) {
+                if (ray(+1,+1) || ray(+1,-1) || ray(-1,+1) || ray(-1,-1)) return true;
+            }
+            if (dynamic_cast<const Rook*>(p) || dynamic_cast<const Queen*>(p)) {
+                if (ray(+1,0) || ray(-1,0) || ray(0,+1) || ray(0,-1)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+
 
 } // namespace chess

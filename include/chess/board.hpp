@@ -29,7 +29,7 @@ public:
 	bool in_check(Color color) const;
 	bool leaves_self_in_check(int r0, int c0, int r1, int c1);
 	void find_kings_position(Color color, int &king_row, int &king_col) const;
-
+	bool attacks_square(Color attackerColor, int r, int c) const;
 
 };
 
