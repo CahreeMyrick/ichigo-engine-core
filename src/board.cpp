@@ -111,11 +111,13 @@ bool Board::is_enemy(const Color &color, const int &r1, const int &c1)const {
 }
 
 bool Board::is_friend(const Color &color, const int &r1, const int &c1 ) const{
+    if  (board[r1][c1] == nullptr) {return false;}
+    
 	return  board[r1][c1]->color == color;
 }
 
 bool Board::is_empty(const int &r1, const int &c1) const{
-	return board[r1][c1]->color==Color::None;
+	return board[r1][c1] == nullptr || board[r1][c1]->color==Color::None;
 }
 
 
@@ -179,6 +181,12 @@ bool Board::attacks_square(Color attackerColor, int r, int c) const {
     return false;
 }
 
+
+void Board::clear() {
+    for (int r=0;r<ROWS;++r)
+        for (int c=0;c<COLS;++c)
+            board[r][c].reset();
+}
 
 
 } // namespace chess

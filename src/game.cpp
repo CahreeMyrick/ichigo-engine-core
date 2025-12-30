@@ -58,19 +58,18 @@ bool Game::in_check(Color color) {
     // find the kinds position
     // search through each square in the array
 
+
 	int king_row, king_col;
 	find_kings_position(color, king_row, king_col);
-
 	// check if any piece can move to the kings position
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			const auto &p =b.board[i][j];
-			if (p->color != color && p->can_move(b, i, j, king_row, king_col)) {
+			if (p != nullptr && p->color != color && p->can_move(b, i, j, king_row, king_col)) {
 				return true;
 			}
 		}
 	}
-
 	return false;	
 }
 
@@ -106,13 +105,9 @@ bool Game::is_checkmate(Color col) {
   - The check cannot be blocked
   */
   
-  // check for check
-  bool a = in_check(col);
-  std::cout << a << std::endl;
-  bool b = !has_any_legal_move(col);
-  std::cout << b << std::endl;
   if (in_check(col) && !has_any_legal_move(col)) {return true;}
 
+  return false;
 }
 
 void Game::move(const std::string &input, std::string &error_msg  ) {
@@ -202,6 +197,89 @@ bool Game::has_any_legal_move(Color col) {
     return false;
 }
 
+bool Game::load_fen(const std::string& fen, std::string& errmsg) {
+    // FEN: <pieces> <side> <castling> <ep> <halfmove> <fullmove>
+    std::istringstream ss(fen);
+    std::string boardpart, stm, castle, epstr, half, full;
+    if (!(ss >> boardpart >> stm >> castle >> epstr >> half >> full)) {
+        errmsg = "Bad FEN: missing fields"; return false;
+    }
+
+    b.clear();
+
+    // --- piece placement ---
+    int r = 7, c = 0;
+    for (char ch : boardpart) {
+        if (ch == '/') { r--; c = 0; continue; }
+        if (std::isdigit(static_cast<unsigned char>(ch))) { c += (ch - '0'); continue; }
+        if (c > 7 || r < 0) { errmsg = "Bad FEN: placement overflow"; return false; }
+
+        std::unique_ptr<Piece> up;
+        Color col = std::isupper(static_cast<unsigned char>(ch)) ? Color::White : Color::Black;
+        char pc = std::tolower(static_cast<unsigned char>(ch));
+        switch (pc) {
+            case 'p': up = std::make_unique<Pawn>(col);   break;
+            case 'n': up = std::make_unique<Knight>(col); break;
+            case 'b': up = std::make_unique<Bishop>(col); break;
+            case 'r': up = std::make_unique<Rook>(col);   break;
+            case 'q': up = std::make_unique<Queen>(col);  break;
+            case 'k': up = std::make_unique<King>(col);   break;
+            default: errmsg = "Bad FEN: bad piece"; return false;
+        }
+        b.board[r][c++] = std::move(up);
+    }
+
+    if (stm == "w") turn = Color::White;
+    else if (stm == "b") turn = Color::Black;
+    else { errmsg = "Bad FEN: side to move"; return false; }
+
+    /*
+    // --- castling rights: default to "moved" (no castling), then enable only if pieces present
+    auto setMoved = [&](int rr, int cc, bool moved){
+        if (b.board[rr][cc]) b.board[rr][cc]->hasMoved = moved;
+    };
+
+    auto kingAt = [&](int rr, int cc){
+        return b.board[rr][cc] && dynamic_cast<King*>(b.board[rr][cc].get());
+    };
+    auto rookAt = [&](int rr, int cc){
+        return b.board[rr][cc] && dynamic_cast<Rook*>(b.board[rr][cc].get());
+    };
+
+    // Disable all by default
+    setMoved(0,4,true); setMoved(0,7,true); setMoved(0,0,true);
+    setMoved(7,4,true); setMoved(7,7,true); setMoved(7,0,true);
+
+    // Enable only the specific pieces if rights exist AND pieces are present
+    for (char cch : castle) {
+        switch (cch) {
+            case 'K': if (kingAt(0,4) && rookAt(0,7)) { setMoved(0,4,false); setMoved(0,7,false); } break;
+            case 'Q': if (kingAt(0,4) && rookAt(0,0)) { setMoved(0,4,false); setMoved(0,0,false); } break;
+            case 'k': if (kingAt(7,4) && rookAt(7,7)) { setMoved(7,4,false); setMoved(7,7,false); } break;
+            case 'q': if (kingAt(7,4) && rookAt(7,0)) { setMoved(7,4,false); setMoved(7,0,false); } break;
+            case '-': /* nothing  break;*/
+            // default: /* ignore unknown chars */ break; */
+       // }
+   // }
+
+    // --- en passant target square (square the capturing pawn would move TO)
+   /* ep.valid = false;
+    if (epstr != "-" && epstr.size() == 2) {
+        int file = epstr[0] - 'a';
+        int rank = epstr[1] - '1';
+        if (file >= 0 && file < 8 && rank >= 0 && rank < 8) {
+            ep.valid     = true;
+            ep.target_r  = rank;
+            ep.target_c  = file;
+            ep.captured_r = (turn == Color::White ? rank - 1 : rank + 1); // square of pawn that double-stepped
+            ep.captured_c = file;
+            ep.pawnColor  = other(turn); // color that double-stepped last move
+        }
+    } */
+    
+    return true;
+}
+
 void Game::start_game() {
   game_loop();
 }
@@ -210,5 +288,6 @@ void Game::end_game() {
 
   
 }
+
 
 } // namespace chess

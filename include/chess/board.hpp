@@ -31,6 +31,8 @@ public:
 	void find_kings_position(Color color, int &king_row, int &king_col) const;
 	bool attacks_square(Color attackerColor, int r, int c) const;
 
+	void clear();
+
 };
 
 } // namespace chess

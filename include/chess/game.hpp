@@ -26,6 +26,7 @@ public:
   bool has_any_legal_move(Color col);
   void make_move();
   void undo_move();
+  bool load_fen(const std::string& fen, std::string& errmsg);
 
 };
 } // namespace chess
